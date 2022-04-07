@@ -12,24 +12,28 @@ import javax.persistence.*
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-class User: Timestamped() {
+class User(
+
     @Id
     @Column(name = "user_id", length = 20)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    var id: Long? = null
+    var id: Long? = null,
 
     @Column(length = 20)
-    var username: String? = null
+    var username: String? = null,
 
     @JsonIgnore
     @Column(length = 20)
-    var password: String? = null
+    var password: String? = null,
 
     @Column(length = 20)
-    var github: String? = null
+    var github: String? = null,
 
-    var role: String? = null
+    var role: String? = null,
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
-    var attendees: MutableList<Attendee> = mutableListOf()
+    var attendees: MutableList<Attendee> = mutableListOf(),
+
+): Timestamped() {
+
 }

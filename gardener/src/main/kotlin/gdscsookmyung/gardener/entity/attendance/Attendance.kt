@@ -11,34 +11,38 @@ import javax.persistence.*
 @Entity
 @Getter
 @NoArgsConstructor
-class Attendance: Timestamped(), Comparable<Attendance> {
+class Attendance(
 
     @Id
     @Column(name = "attendance_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    var id: Long? = null
+    var id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attendee_id")
-    var attendee: Attendee? = null
+    var attendee: Attendee? = null,
 
     @Column
-    var date: LocalDate = LocalDate.now()
+    var date: LocalDate = LocalDate.now(),
 
     @Convert(converter = BooleanToYNConverter::class)
     @Column(length = 1)
-    var isChecked: Boolean = false
+    var isChecked: Boolean = false,
 
     @Convert(converter = BooleanToYNConverter::class)
     @Column(length = 1)
-    var commit: Boolean = false
+    var commit: Boolean = false,
 
     @Convert(converter = BooleanToYNConverter::class)
     @Column(length = 1)
-    var til: Boolean = false
+    var til: Boolean = false,
+
+) : Timestamped(), Comparable<Attendance> {
 
     override fun compareTo(other: Attendance): Int {
        return this.date.compareTo(other.date)
     }
+
+
 
 }
