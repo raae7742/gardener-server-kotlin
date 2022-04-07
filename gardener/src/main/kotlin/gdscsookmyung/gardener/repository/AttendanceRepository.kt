@@ -10,6 +10,4 @@ import java.time.LocalDate
 @Repository
 interface AttendanceRepository: JpaRepository<Attendance, Long>{
     fun findByAttendee(attendee: Attendee): List<Attendance>
-
-    fun findByEventAndDate(event: Event, date: LocalDate): List<Attendance>
 }

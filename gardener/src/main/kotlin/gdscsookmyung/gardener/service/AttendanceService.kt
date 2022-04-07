@@ -11,6 +11,7 @@ import gdscsookmyung.gardener.service.util.GithubUtil
 import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import javax.transaction.Transactional
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ class AttendanceService(
     private val githubUtil: GithubUtil
 ) {
 
+    @Transactional
     fun create(attendee: Attendee, date: LocalDate?): Attendance {
         return if (date == null) attendanceRepository.save(Attendance(attendee = attendee))
         else attendanceRepository.save(Attendance(attendee = attendee, date = date))
@@ -38,34 +40,38 @@ class AttendanceService(
         return response
     }
 
-    fun readAllByEventAndDate(event: Event, date: LocalDate): MutableList<AttendanceDateDto> {
-        val response = mutableListOf<AttendanceDateDto>()
-        val attendances = attendanceRepository.findByEventAndDate(event, date)
+//    fun readAllByEventAndDate(event: Event, date: LocalDate): MutableList<AttendanceDateDto> {
+//        val response = mutableListOf<AttendanceDateDto>()
+//        val attendances = attendanceRepository.findByEventAndDate(event, date)
+//
+//        for (a in attendances) {
+//            response.add(AttendanceDateDto(
+//                github = a.attendee?.github!!,
+//                isChecked = a.isChecked
+//            ))
+//        }
+//        return response
+//    }
 
-        for (a in attendances) {
-            response.add(AttendanceDateDto(
-                github = a.attendee?.github!!,
-                isChecked = a.isChecked
-            ))
-        }
-        return response
-    }
-
+    @Transactional
     fun updateAllCommit(attendee: Attendee) {
         //Todo
     }
 
+    @Transactional
     fun updateAllTil(attendee: Attendee) {
         //Todo
     }
 
     // 임시 메소드
+    @Transactional
     fun updateCommit(attendance: Attendance) {
         attendance.commit = true
         attendanceRepository.save(attendance)
     }
 
     // 임시 메소드
+    @Transactional
     fun updateTil(attendance: Attendance) {
         attendance.til = true
         attendanceRepository.save(attendance)

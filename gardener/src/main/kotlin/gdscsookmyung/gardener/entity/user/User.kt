@@ -35,5 +35,7 @@ class User(
     var attendees: MutableList<Attendee> = mutableListOf(),
 
 ): Timestamped() {
-
+    fun addAttendee(attendee: Attendee) {
+        attendees.add(attendee)
+    }
 }
