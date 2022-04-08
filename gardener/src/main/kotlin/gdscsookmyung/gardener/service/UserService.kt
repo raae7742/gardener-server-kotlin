@@ -5,6 +5,8 @@ import gdscsookmyung.gardener.entity.user.dto.LoginResponseDto
 import gdscsookmyung.gardener.entity.user.dto.LoginRequestDto
 import gdscsookmyung.gardener.entity.user.dto.UserRequestDto
 import gdscsookmyung.gardener.repository.UserRepository
+import gdscsookmyung.gardener.util.exception.CustomException
+import gdscsookmyung.gardener.util.exception.ErrorCode
 import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
@@ -35,7 +37,7 @@ class UserService(
     @Transactional
     fun login(loginDto: LoginRequestDto): LoginResponseDto {
         val user = userRepository.findByUsername(loginDto.username)
-            ?: throw IllegalArgumentException("해당 회원이 존재하지 않습니다.")
+            ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
 
         if (loginDto.password.contentEquals(user.password))
             return LoginResponseDto(
@@ -44,7 +46,7 @@ class UserService(
                 jwtToken = "1",
                 refreshToken = "1"
             )
-        else throw IllegalArgumentException("비밀번호가 일치하지 않습니다.")
+        else throw CustomException(ErrorCode.USER_LOGIN_FAIL)
     }
 
     private fun validateDuplicatedGithub(github: String): Boolean {
