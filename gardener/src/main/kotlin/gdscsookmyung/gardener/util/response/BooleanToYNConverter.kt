@@ -1,4 +1,4 @@
-package gdscsookmyung.gardener.util
+package gdscsookmyung.gardener.util.response
 
 import javax.persistence.AttributeConverter
 

@@ -2,7 +2,7 @@ package gdscsookmyung.gardener.entity.attendance
 
 import gdscsookmyung.gardener.entity.Timestamped
 import gdscsookmyung.gardener.entity.attendee.Attendee
-import gdscsookmyung.gardener.util.BooleanToYNConverter
+import gdscsookmyung.gardener.util.response.BooleanToYNConverter
 import lombok.Getter
 import lombok.NoArgsConstructor
 import java.time.LocalDate

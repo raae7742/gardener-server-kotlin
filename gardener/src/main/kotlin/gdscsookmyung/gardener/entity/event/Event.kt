@@ -1,7 +1,9 @@
 package gdscsookmyung.gardener.entity.event
 
+import com.sun.jdi.request.EventRequest
 import gdscsookmyung.gardener.entity.Timestamped
 import gdscsookmyung.gardener.entity.attendee.Attendee
+import gdscsookmyung.gardener.entity.event.dto.EventRequestDto
 import lombok.Getter
 import lombok.NoArgsConstructor
 import java.time.LocalDate
@@ -33,5 +35,19 @@ class Event(
     var attendees: MutableList<Attendee> = mutableListOf(),
 
 ): Timestamped() {
+
+    constructor(requestDto: EventRequestDto): this() {
+        this.name = requestDto.name
+        this.content = requestDto.content
+        this.startedAt = requestDto.startedAt
+        this.endedAt = requestDto.endedAt
+    }
+
+    fun update(requestDto: EventRequestDto) {
+        this.name = requestDto.name
+        this.content = requestDto.content
+        this.startedAt = requestDto.startedAt
+        this.endedAt = requestDto.endedAt
+    }
 
 }

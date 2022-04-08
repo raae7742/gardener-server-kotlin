@@ -31,11 +31,5 @@ class User(
 
     var role: String? = null,
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
-    var attendees: MutableList<Attendee> = mutableListOf(),
-
 ): Timestamped() {
-    fun addAttendee(attendee: Attendee) {
-        attendees.add(attendee)
-    }
 }

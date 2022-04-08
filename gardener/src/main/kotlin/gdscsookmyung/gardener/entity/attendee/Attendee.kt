@@ -18,15 +18,8 @@ class Attendee(
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null,
 
-//    @Column(length = 20)
-//    var name: String? = null,
-
     @Column(length = 20)
     var github: String? = null,
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    var user: User? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
