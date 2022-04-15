@@ -40,18 +40,18 @@ class AttendanceService(
         return response
     }
 
-//    fun readAllByEventAndDate(event: Event, date: LocalDate): MutableList<AttendanceDateDto> {
-//        val response = mutableListOf<AttendanceDateDto>()
-//        val attendances = attendanceRepository.findByEventAndDate(event, date)
-//
-//        for (a in attendances) {
-//            response.add(AttendanceDateDto(
-//                github = a.attendee?.github!!,
-//                isChecked = a.isChecked
-//            ))
-//        }
-//        return response
-//    }
+    fun readAllByEventAndDate(event_id: Long, date: LocalDate): MutableList<AttendanceDateDto> {
+        val response = mutableListOf<AttendanceDateDto>()
+        val attendances = attendanceRepository.findByEventAndDate(event_id, date)
+
+        for (a in attendances) {
+            response.add(AttendanceDateDto(
+                github = a.attendee?.github!!,
+                isChecked = a.isChecked
+            ))
+        }
+        return response
+    }
 
     @Transactional
     fun updateAllCommit(attendee: Attendee) {

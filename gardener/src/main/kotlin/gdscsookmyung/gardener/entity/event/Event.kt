@@ -1,6 +1,5 @@
 package gdscsookmyung.gardener.entity.event
 
-import com.sun.jdi.request.EventRequest
 import gdscsookmyung.gardener.entity.Timestamped
 import gdscsookmyung.gardener.entity.attendee.Attendee
 import gdscsookmyung.gardener.entity.event.dto.EventRequestDto
