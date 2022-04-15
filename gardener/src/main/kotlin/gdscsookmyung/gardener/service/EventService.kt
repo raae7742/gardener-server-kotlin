@@ -18,6 +18,8 @@ class EventService (
 
     fun create(requestDto: EventRequestDto): EventResponseDto {
         var event = Event(requestDto)
+        event = eventRepository.save(event)
+
         for (a in requestDto.attendees) {
             val attendee = attendeeService.create(a, event)
             event.attendees.add(attendee)

@@ -16,4 +16,6 @@ interface AttendanceRepository: JpaRepository<Attendance, Long>{
             "fetch join Attendee ae on ac.attendee_id = ae.attendee_id " +
             "where ae.event_id = :event_id and ac.date = :date", nativeQuery = true)
     fun findByEventAndDate(@Param("event_id") event_id: Long,@Param("date") date: LocalDate): List<Attendance>
+
+    fun findByAttendeeAndDate(attendee: Attendee, date: LocalDate): Attendance
 }

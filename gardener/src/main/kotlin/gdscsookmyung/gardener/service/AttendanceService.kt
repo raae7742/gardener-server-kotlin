@@ -8,9 +8,13 @@ import gdscsookmyung.gardener.entity.attendee.Attendee
 import gdscsookmyung.gardener.entity.event.Event
 import gdscsookmyung.gardener.repository.AttendanceRepository
 import gdscsookmyung.gardener.service.util.GithubUtil
+import gdscsookmyung.gardener.util.exception.CustomException
+import gdscsookmyung.gardener.util.exception.ErrorCode
 import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service
+import java.io.IOException
 import java.time.LocalDate
+import java.time.ZoneId
 import javax.transaction.Transactional
 
 @Service
@@ -22,52 +26,74 @@ class AttendanceService(
 
     @Transactional
     fun create(attendee: Attendee, date: LocalDate?): Attendance {
-        return if (date == null) attendanceRepository.save(Attendance(attendee = attendee))
+        return if (date == null) attendanceRepository.save(Attendance(attendee = attendee, date = LocalDate.now()))
         else attendanceRepository.save(Attendance(attendee = attendee, date = date))
     }
 
-    fun readAllByAttendee(attendee: Attendee): AttendanceAttendeeDto {
-        var response = AttendanceAttendeeDto(github = attendee.github!!)
-        val attendances = attendanceRepository.findByAttendee(attendee)
+    fun readAllByAttendee(event: Event, attendees: List<Attendee>): MutableList<AttendanceAttendeeDto> {
+        updateAllCommit(event, attendees)
 
-        for (a in attendances) {
-            response.attendances.add(
-                AttendanceResponseDto(
-                    date = a.date,
-                    isChecked = a.isChecked
-                ))
+        val response: MutableList<AttendanceAttendeeDto> = mutableListOf()
+        for (attendee in attendees) {
+            val attendeeDto = AttendanceAttendeeDto(github = attendee.github!!)
+            val attendances = attendanceRepository.findByAttendee(attendee)
+
+            for (a in attendances) {
+                attendeeDto.attendances.add(
+                    AttendanceResponseDto(
+                        date = a.date,
+                        isChecked = a.commit
+                    ))
+            }
+            response.add(attendeeDto)
         }
         return response
     }
 
-    fun readAllByEventAndDate(event_id: Long, date: LocalDate): MutableList<AttendanceDateDto> {
+    fun readAllByEventAndDate(event: Event, attendees: List<Attendee>, date: LocalDate): MutableList<AttendanceDateDto> {
+        updateAllCommit(event, attendees)
+
         val response = mutableListOf<AttendanceDateDto>()
-        val attendances = attendanceRepository.findByEventAndDate(event_id, date)
+        val attendances = attendanceRepository.findByEventAndDate(event.id!!, date)
 
         for (a in attendances) {
             response.add(AttendanceDateDto(
                 github = a.attendee?.github!!,
-                isChecked = a.isChecked
+                isChecked = a.commit
             ))
         }
         return response
     }
 
     @Transactional
-    fun updateAllCommit(attendee: Attendee) {
-        //Todo
+    fun updateAllCommit(event: Event, attendees: List<Attendee>) {
+        val startedAt = event.startedAt
+        val endedAt = event.endedAt
+
+        for (attendee in attendees) {
+            val iterator = githubUtil.getCommits(attendee.github!!)
+            try {
+                while (iterator.hasNext()) {
+                    val commit = iterator.next()
+                    val date = commit.commitDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
+                    if (date.isBefore(startedAt)) break
+                    if (date.isBefore(endedAt)) {
+                        val attendance = attendanceRepository.findByAttendeeAndDate(attendee, date)
+                        attendance.commit = true
+                        attendanceRepository.save(attendance)
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                throw CustomException(ErrorCode.COMMIT_ERROR)
+            }
+        }
     }
 
     @Transactional
     fun updateAllTil(attendee: Attendee) {
         //Todo
-    }
-
-    // 임시 메소드
-    @Transactional
-    fun updateCommit(attendance: Attendance) {
-        attendance.commit = true
-        attendanceRepository.save(attendance)
     }
 
     // 임시 메소드
