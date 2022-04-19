@@ -3,7 +3,10 @@ package gdscsookmyung.gardener.service
 import gdscsookmyung.gardener.entity.event.Event
 import gdscsookmyung.gardener.entity.event.dto.EventRequestDto
 import gdscsookmyung.gardener.entity.event.dto.EventResponseDto
+import gdscsookmyung.gardener.entity.user.User
+import gdscsookmyung.gardener.repository.AttendeeRepository
 import gdscsookmyung.gardener.repository.EventRepository
+import gdscsookmyung.gardener.repository.UserRepository
 import gdscsookmyung.gardener.util.exception.CustomException
 import gdscsookmyung.gardener.util.exception.ErrorCode
 import lombok.RequiredArgsConstructor
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Service
 @RequiredArgsConstructor
 class EventService (
     val eventRepository: EventRepository,
+    val attendeeRepository: AttendeeRepository,
+    val userRepository: UserRepository,
     val attendeeService: AttendeeService,
 ) {
 
@@ -46,6 +51,16 @@ class EventService (
     fun readFutureEvents(): List<EventResponseDto> {
         val futureEvents = eventRepository.findFutureEvents()
         return convertToResponseDtoList(futureEvents)
+    }
+
+    fun readUserEvents(username: String): List<EventResponseDto> {
+        val user: User = userRepository.findByUsername(username).orElseThrow { throw CustomException(ErrorCode.USER_NOT_FOUND) }
+        val attendees = attendeeRepository.findByGithub(user.github)
+
+        val events = mutableListOf<Event>()
+        attendees.forEach { events.add(it.event!!) }
+
+        return convertToResponseDtoList(events)
     }
 
     private fun convertToResponseDtoList(currentEvents: List<Event>): List<EventResponseDto> {
