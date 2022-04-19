@@ -1,35 +1,70 @@
 package gdscsookmyung.gardener.entity.user
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import gdscsookmyung.gardener.auth.RoleType
 import gdscsookmyung.gardener.entity.Timestamped
-import gdscsookmyung.gardener.entity.attendee.Attendee
 import lombok.AllArgsConstructor
 import lombok.Getter
-import lombok.NoArgsConstructor
+import lombok.Setter
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import javax.persistence.*
 
 @Entity
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
 class User(
+    @Column(length = 20)
+    private var username: String,
+
+    @JsonIgnore
+    @Column(length = 20)
+    private var password: String,
+
+    @Column(length = 20)
+    var github: String,
+
+    @Column(length = 20)
+    @Enumerated(EnumType.STRING)
+    var role: RoleType,
+
+): Timestamped(), UserDetails {
 
     @Id
     @Column(name = "user_id", length = 20)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    var id: Long? = null,
+    var id: Long = -1
 
-    @Column(length = 20)
-    var username: String? = null,
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority>? {
+        return null
+    }
 
-    @JsonIgnore
-    @Column(length = 20)
-    var password: String? = null,
+    override fun getPassword(): String {
+        return this.password
+    }
 
-    @Column(length = 20)
-    var github: String? = null,
+    override fun getUsername(): String {
+        return this.username
+    }
 
-    var role: String? = null,
+    override fun isAccountNonExpired(): Boolean {
+        return true
+    }
 
-): Timestamped() {
+    override fun isAccountNonLocked(): Boolean {
+        return true
+    }
+
+    override fun isCredentialsNonExpired(): Boolean {
+        return true
+    }
+
+    override fun isEnabled(): Boolean {
+        return true
+    }
+
+    fun update(username: String) {
+        this.username = username
+    }
 }
