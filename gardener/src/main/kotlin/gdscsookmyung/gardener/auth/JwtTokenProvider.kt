@@ -15,10 +15,10 @@ import javax.servlet.http.HttpServletRequest
 @Component
 class JwtTokenProvider(
     private val jwtProperty: JwtProperty,
-    private var secretKey: String,
     private val userDetailsService: UserDetailsService,
-    private val LOG: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)
 ) {
+    private var secretKey: String = ""
+    private val LOG: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)
 
     @PostConstruct
     fun init() {
@@ -34,7 +34,7 @@ class JwtTokenProvider(
             .setClaims(claims)
             .setIssuedAt(now)
             .setExpiration(Date(now.time + jwtProperty.accessTime))
-            .signWith(SignatureAlgorithm.ES256, secretKey)
+            .signWith(SignatureAlgorithm.HS256, secretKey)
             .compact()
     }
 
@@ -47,7 +47,7 @@ class JwtTokenProvider(
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).body.subject
     }
 
-    fun resolveToken(request: HttpServletRequest): String {
+    fun resolveToken(request: HttpServletRequest): String? {
         return request.getHeader("Authorization")
     }
 

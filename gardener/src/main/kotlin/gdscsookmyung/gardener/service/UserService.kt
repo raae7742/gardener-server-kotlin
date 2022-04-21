@@ -36,13 +36,12 @@ class UserService(
         )
         userRepository.save(user)
 
-        return login(LoginRequestDto(user.username, user.password))
+        return login(LoginRequestDto(requestDto.username, requestDto.password))
     }
 
     @Transactional
     fun login(loginDto: LoginRequestDto): LoginResponseDto {
-        val user = userRepository.findByUsername(loginDto.username)
-            ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
+        val user : User = userRepository.findByUsername(loginDto.username).orElseThrow { throw CustomException(ErrorCode.USER_NOT_FOUND) }
 
         if (!passwordEncoder.matches(loginDto.password, user.password))
             throw CustomException(ErrorCode.USER_LOGIN_FAIL)

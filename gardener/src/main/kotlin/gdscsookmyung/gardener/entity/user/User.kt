@@ -19,7 +19,7 @@ class User(
     private var username: String,
 
     @JsonIgnore
-    @Column(length = 20)
+    @Column
     private var password: String,
 
     @Column(length = 20)
