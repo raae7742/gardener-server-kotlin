@@ -77,11 +77,14 @@ class AttendanceService(
                     val commit = iterator.next()
                     val date = commit.commitDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
 
-                    if (date.isBefore(startedAt)) break
-                    if (date.isBefore(endedAt)) {
+                    if (date.isBefore(startedAt)) return
+
+                    if (date.isBefore(endedAt) || date.isEqual(endedAt)) {
                         val attendance = attendanceRepository.findByAttendeeAndDate(attendee, date)
                         attendance.commit = true
                         attendanceRepository.save(attendance)
+
+                        if (date.isEqual(endedAt)) return
                     }
                 }
             } catch (e: IOException) {
