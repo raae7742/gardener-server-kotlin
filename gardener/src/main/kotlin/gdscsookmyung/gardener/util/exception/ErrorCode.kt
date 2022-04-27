@@ -16,5 +16,7 @@ enum class ErrorCode(
     NOT_SUPPORTED_TYPE(HttpStatus.CONFLICT, "지원하지 않는 로그인 형식입니다"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "객체가 존재하지 않습니다."),
 
-    COMMIT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "커밋을 불러오는 데에 오류가 발생했습니다.");
+    COMMIT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "커밋을 불러오는 데에 오류가 발생했습니다."),
+    EVENT_EXPIRED(HttpStatus.BAD_REQUEST, "이미 지나간 이벤트입니다."),
+    EVENT_NOT_STARTED(HttpStatus.BAD_REQUEST, "예정된 이벤트입니다."),
 }
