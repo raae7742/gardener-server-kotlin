@@ -8,6 +8,7 @@ import gdscsookmyung.gardener.entity.attendee.Attendee
 import gdscsookmyung.gardener.entity.event.Event
 import gdscsookmyung.gardener.repository.AttendanceRepository
 import gdscsookmyung.gardener.service.util.GithubUtil
+import gdscsookmyung.gardener.service.util.SlackUtil
 import gdscsookmyung.gardener.util.exception.CustomException
 import gdscsookmyung.gardener.util.exception.ErrorCode
 import lombok.RequiredArgsConstructor
@@ -21,7 +22,8 @@ import javax.transaction.Transactional
 @RequiredArgsConstructor
 class AttendanceService(
     private val attendanceRepository: AttendanceRepository,
-    private val githubUtil: GithubUtil
+    private val githubUtil: GithubUtil,
+    private val slackUtil: SlackUtil,
 ) {
 
     @Transactional
@@ -96,6 +98,9 @@ class AttendanceService(
 
     @Transactional
     fun updateAllTil(attendee: Attendee) {
+
+        slackUtil.fetchHistory()
+
         //Todo
     }
 

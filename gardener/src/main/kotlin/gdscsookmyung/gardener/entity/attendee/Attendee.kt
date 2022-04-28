@@ -4,6 +4,7 @@ import gdscsookmyung.gardener.entity.Timestamped
 import gdscsookmyung.gardener.entity.attendance.Attendance
 import gdscsookmyung.gardener.entity.event.Event
 import gdscsookmyung.gardener.entity.user.User
+import io.swagger.v3.oas.annotations.media.Schema
 import lombok.Getter
 import lombok.NoArgsConstructor
 import javax.persistence.*

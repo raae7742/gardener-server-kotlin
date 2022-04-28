@@ -3,6 +3,7 @@ package gdscsookmyung.gardener.entity.attendance
 import gdscsookmyung.gardener.entity.Timestamped
 import gdscsookmyung.gardener.entity.attendee.Attendee
 import gdscsookmyung.gardener.util.response.BooleanToYNConverter
+import io.swagger.v3.oas.annotations.media.Schema
 import lombok.Getter
 import lombok.NoArgsConstructor
 import java.time.LocalDate

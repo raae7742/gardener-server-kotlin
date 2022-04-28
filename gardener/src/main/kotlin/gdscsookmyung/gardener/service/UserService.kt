@@ -25,8 +25,8 @@ class UserService(
 
     @Transactional
     fun join(requestDto: UserRequestDto): LoginResponseDto {
-        if (validateDuplicatedGithub(requestDto.github)) throw IllegalArgumentException()
-        if (validateDuplicatedUsername(requestDto.username)) throw IllegalArgumentException()
+        if (validateDuplicatedGithub(requestDto.github)) throw CustomException(ErrorCode.USER_GITHUB_DUPLICATED)
+        if (validateDuplicatedUsername(requestDto.username)) throw CustomException(ErrorCode.USER_NAME_DUPLICATED)
 
         val user = User(
             username = requestDto.username,
@@ -41,7 +41,7 @@ class UserService(
 
     @Transactional
     fun login(loginDto: LoginRequestDto): LoginResponseDto {
-        val user : User = userRepository.findByUsername(loginDto.username).orElseThrow { throw CustomException(ErrorCode.USER_NOT_FOUND) }
+        val user : User = userRepository.findByUsername(loginDto.username).orElseThrow { throw CustomException(ErrorCode.USER_LOGIN_FAIL) }
 
         if (!passwordEncoder.matches(loginDto.password, user.password))
             throw CustomException(ErrorCode.USER_LOGIN_FAIL)

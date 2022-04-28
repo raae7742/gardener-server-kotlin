@@ -8,7 +8,8 @@ enum class ErrorCode(
 ) {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "계정이 존재하지 않습니다."),
     USER_LOGIN_FAIL(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 틀렸습니다."),
-    USER_DUPLICATED(HttpStatus.CONFLICT, "이미 같은 깃헙 아이디를 사용하는 유저가 존재합니다."),
+    USER_GITHUB_DUPLICATED(HttpStatus.CONFLICT, "이미 같은 깃헙 아이디를 사용하는 유저가 존재합니다."),
+    USER_NAME_DUPLICATED(HttpStatus.CONFLICT, "이미 같은 이름을 사용하는 유저가 존재합니다."),
 
     TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "토큰이 존재하지 않습니다."),
     TOKEN_INVALID(HttpStatus.BAD_REQUEST, "액세스 토큰이 만료되었습니다."),

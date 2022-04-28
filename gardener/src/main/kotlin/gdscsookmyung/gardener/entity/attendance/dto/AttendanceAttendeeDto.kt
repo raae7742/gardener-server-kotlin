@@ -1,7 +1,9 @@
 package gdscsookmyung.gardener.entity.attendance.dto
 
+import io.swagger.v3.oas.annotations.media.Schema
 data class AttendanceAttendeeDto (
-    //Todo: 이름과 프로필 이미지를 직접 줄 것인지, 아니면 github id만 주고 조회하게 할 것인지?
+    @Schema(description = "참여자의 깃헙 ID")
     val github: String,
+    @Schema(description = "참여자의 출석 현황")
     var attendances: MutableList<AttendanceResponseDto> = mutableListOf(),
 )

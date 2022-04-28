@@ -3,6 +3,7 @@ package gdscsookmyung.gardener.entity.user
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gdscsookmyung.gardener.auth.RoleType
 import gdscsookmyung.gardener.entity.Timestamped
+import io.swagger.v3.oas.annotations.media.Schema
 import lombok.AllArgsConstructor
 import lombok.Getter
 import lombok.Setter

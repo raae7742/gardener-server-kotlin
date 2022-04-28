@@ -39,6 +39,8 @@ dependencies {
 
 	//spring-openapi-ui
 	implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
+	implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
+
 
 	implementation("com.querydsl:querydsl-jpa:5.0.0")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
