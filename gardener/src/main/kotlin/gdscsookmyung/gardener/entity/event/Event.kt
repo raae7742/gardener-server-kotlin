@@ -13,13 +13,12 @@ import javax.persistence.*
 @Getter
 @NoArgsConstructor
 class Event(
-
     @Id
     @Column(name = "event_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null,
 
-    @Column(length = 20)
+    @Column(length = 45)
     var name: String? = null,
 
     @Column
