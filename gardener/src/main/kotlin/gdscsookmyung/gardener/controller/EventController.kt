@@ -37,6 +37,20 @@ class EventController (
         )
     }
 
+    @Operation(summary = "하나의 이벤트 조회")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "조회 성공", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = EventResponseDto::class))))]),
+        ApiResponse(responseCode = "404", description = "해당 ID의 이벤트를 찾을 수 없습니다.", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])    @GetMapping("/{eventId}")
+    fun readEvent(@PathVariable("eventId") eventId: Long): ResponseEntity<ResponseMessage> {
+        val event = eventService.readById(eventId)
+        return ResponseEntity(
+            ResponseMessage(message = "성공", data = EventResponseDto(event)),
+            HttpStatus.OK
+        )
+    }
+
     @Operation(summary = "진행 중인 이벤트 조회")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "조회 성공", content = [
