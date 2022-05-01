@@ -38,6 +38,15 @@ class JwtTokenProvider(
             .compact()
     }
 
+    fun createRefreshToken(): String {
+        val now = Date()
+        return Jwts.builder()
+            .setIssuedAt(now)
+            .setExpiration(Date(now.time + jwtProperty.refreshTime))
+            .signWith(SignatureAlgorithm.HS256, secretKey)
+            .compact()
+    }
+
     fun getAuthentication(token: String): Authentication {
         val userDetails = userDetailsService.loadUserByUsername(getUsername(token))
         return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)

@@ -37,6 +37,9 @@ class User(
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long = -1
 
+    @Column
+    var refreshToken: String? = null
+
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? {
         return null
     }
@@ -65,7 +68,11 @@ class User(
         return true
     }
 
-    fun update(username: String) {
+    fun updateUsername(username: String) {
         this.username = username
+    }
+
+    fun updateRefreshToken(refreshToken: String?) {
+        this.refreshToken = refreshToken
     }
 }

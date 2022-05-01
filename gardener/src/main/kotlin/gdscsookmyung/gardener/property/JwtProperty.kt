@@ -8,4 +8,5 @@ import org.springframework.boot.context.properties.ConstructorBinding
 data class JwtProperty (
     val secretKey: String,
     val accessTime: Int,
+    val refreshTime: Int,
 )

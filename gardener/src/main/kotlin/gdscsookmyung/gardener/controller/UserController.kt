@@ -4,6 +4,7 @@ import gdscsookmyung.gardener.auth.JwtTokenProvider
 import gdscsookmyung.gardener.entity.event.dto.EventResponseDto
 import gdscsookmyung.gardener.entity.user.dto.LoginRequestDto
 import gdscsookmyung.gardener.entity.user.dto.LoginResponseDto
+import gdscsookmyung.gardener.entity.user.dto.TokenRequestDto
 import gdscsookmyung.gardener.entity.user.dto.UserRequestDto
 import gdscsookmyung.gardener.service.EventService
 import gdscsookmyung.gardener.service.UserService
@@ -94,6 +95,38 @@ class UserController(
 
         return ResponseEntity(
             ResponseMessage(message = "성공", data = user),
+            HttpStatus.OK
+        )
+    }
+
+    @Operation(summary = "액세스 토큰 재발급")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "재발급 성공", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = EventResponseDto::class))))]),
+        ApiResponse(responseCode = "401", description = "아직 만료되지 않은 토큰입니다.", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))]),
+        ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))]),
+        ApiResponse(responseCode = "406", description = "접근이 거부되었습니다.", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
+    @PostMapping("/refresh")
+    fun refreshToken(@RequestBody tokenRequestDto: TokenRequestDto) : ResponseEntity<ResponseMessage> {
+        return ResponseEntity(
+            ResponseMessage(message = "성공", data = userService.refreshToken(tokenRequestDto)),
+            HttpStatus.OK
+        )
+    }
+
+    @Operation(summary = "로그아웃")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "로그아웃 성공", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = String::class))))]),
+        ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
+    @PostMapping("/logout")
+    fun logout(@RequestHeader("Authorization") token: String): ResponseEntity<ResponseMessage> {
+        return ResponseEntity(
+            ResponseMessage(message = "성공", data = userService.logout(token)),
             HttpStatus.OK
         )
     }
