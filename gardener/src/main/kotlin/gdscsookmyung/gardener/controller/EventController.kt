@@ -2,6 +2,7 @@ package gdscsookmyung.gardener.controller
 
 import gdscsookmyung.gardener.entity.event.dto.EventRequestDto
 import gdscsookmyung.gardener.entity.event.dto.EventResponseDto
+import gdscsookmyung.gardener.service.AttendeeService
 import gdscsookmyung.gardener.service.EventService
 import gdscsookmyung.gardener.util.exception.ErrorResponse
 import gdscsookmyung.gardener.util.response.ResponseMessage
@@ -16,12 +17,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 
 @Tag(name = "event", description = "이벤트 API")
 @RestController
 @RequestMapping("/event")
 class EventController (
-    val eventService: EventService
+    val eventService: EventService,
+    val attendeeService: AttendeeService
 ){
     @Operation(summary = "이벤트 생성")
     @ApiResponses(value = [
@@ -121,6 +124,26 @@ class EventController (
 
         return ResponseEntity(
             ResponseMessage(message = "성공", data = eventId),
+            HttpStatus.OK
+        )
+    }
+
+    @Operation(summary = "프로젝트 나가기")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "나가기 성공", content = [
+            Content(mediaType = "application/json", array = ArraySchema(schema = Schema(implementation = String::class)))]),
+        ApiResponse(responseCode = "404", description = "해당 ID의 객체 또는 연결된 객체를 찾을 수 없습니다.", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
+    @PostMapping("/exit")
+    fun exitEvent(
+        @Parameter(description = "이벤트 ID") @RequestParam eventId: Long,
+        request: HttpServletRequest
+    ): ResponseEntity<ResponseMessage> {
+        val username = request.userPrincipal.name
+        attendeeService.delete(eventId, username)
+
+        return ResponseEntity(
+            ResponseMessage(message = "성공", data = ""),
             HttpStatus.OK
         )
     }

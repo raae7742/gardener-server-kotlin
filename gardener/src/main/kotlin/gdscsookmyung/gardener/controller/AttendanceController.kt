@@ -21,10 +21,9 @@ import java.time.LocalDate
 
 @Tag(name = "attendance", description = "출석 API")
 @RestController
-@RequestMapping("/attendance")
+@RequestMapping("/event/{eventId}/attendance")
 class AttendanceController(
     val attendanceService: AttendanceService,
-    val attendeeService: AttendeeService
 ) {
 
     @Operation(summary = "이벤트 출석부 조회")
@@ -33,8 +32,8 @@ class AttendanceController(
             Content(mediaType = "application/json", array = ArraySchema(schema = Schema(implementation = AttendanceAttendeeDto::class)))]),
         ApiResponse(responseCode = "404", description = "해당 ID의 객체 또는 연결된 객체를 찾을 수 없습니다.", content = [
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
-    @GetMapping
-    fun readAllCheck(@Parameter(description = "이벤트 ID") @RequestParam eventId: Long): ResponseEntity<Any> {
+    @GetMapping("/all")
+    fun readAllCheck(@Parameter(description = "이벤트 ID") @PathVariable eventId: Long): ResponseEntity<Any> {
         return ResponseEntity(
             ResponseMessage(message = "성공", data = attendanceService.readAllByEventId(eventId)),
             HttpStatus.OK
@@ -50,9 +49,7 @@ class AttendanceController(
         ApiResponse(responseCode = "404", description = "해당 ID의 객체 또는 연결된 객체를 찾을 수 없습니다.", content = [
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
     @GetMapping("/today")
-    fun readTodayCheck(@Parameter(description = "이벤트 ID") @RequestParam eventId: Long): ResponseEntity<Any> {
-        // TODO: 이벤트 종료 or 시작 전 여부 체크
-
+    fun readTodayCheck(@Parameter(description = "이벤트 ID") @PathVariable eventId: Long): ResponseEntity<Any> {
         return ResponseEntity(
             ResponseMessage(message = "성공", data = attendanceService.readAllByEventIdAndDate(eventId, LocalDate.now())),
             HttpStatus.OK

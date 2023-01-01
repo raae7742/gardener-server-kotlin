@@ -45,7 +45,6 @@ class AttendanceService(
         updateAllCommit(event, attendees)
 
         val response: MutableList<AttendanceAttendeeDto> = mutableListOf()
-
         attendees.stream().forEach { attendee ->
             val dto = AttendanceAttendeeDto(attendee.github!!)
 
@@ -58,7 +57,16 @@ class AttendanceService(
     }
 
     fun readAllByEventIdAndDate(eventId: Long, date: LocalDate): MutableList<AttendanceDateDto> {
-        val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND)}
+        val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
+
+        if (date.isBefore(event.startedAt)) {
+            throw CustomException(ErrorCode.EVENT_NOT_STARTED)
+        }
+
+        if (date.isAfter(event.endedAt)) {
+            throw CustomException(ErrorCode.EVENT_EXPIRED)
+        }
+
         val attendees = attendeeRepository.findAllByEvent(event)
 
         updateAllCommit(event, attendees)
@@ -79,7 +87,7 @@ class AttendanceService(
         for (attendee in attendees) {
             val iterator = githubUtil.getCommits(attendee.github!!)
             try {
-                // 최근 순으로 출력
+                // 최근 순부터 반복
                 while (iterator.hasNext()) {
                     val commit = iterator.next()
                     val date = commit.commitDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
