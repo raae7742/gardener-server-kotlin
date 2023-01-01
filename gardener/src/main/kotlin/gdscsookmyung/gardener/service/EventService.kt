@@ -1,5 +1,6 @@
 package gdscsookmyung.gardener.service
 
+import gdscsookmyung.gardener.entity.attendee.Attendee
 import gdscsookmyung.gardener.entity.event.Event
 import gdscsookmyung.gardener.entity.event.dto.EventRequestDto
 import gdscsookmyung.gardener.entity.event.dto.EventResponseDto
@@ -19,18 +20,19 @@ class EventService (
     val eventRepository: EventRepository,
     val attendeeRepository: AttendeeRepository,
     val userRepository: UserRepository,
-    val attendeeService: AttendeeService,
 ) {
 
     fun create(requestDto: EventRequestDto): EventResponseDto {
         var event = Event(requestDto)
         event = eventRepository.save(event)
 
-        for (a in requestDto.attendees) {
-            event.attendees.add(attendeeService.create(a, event))
+        for (githubId in requestDto.attendees) {
+            val attendee = Attendee(github = githubId, event = event)
+            event.attendees.add(attendee)
+            attendeeRepository.save(attendee)
         }
-        event = eventRepository.save(event)
 
+        event = eventRepository.save(event)
         return EventResponseDto(event)
     }
 

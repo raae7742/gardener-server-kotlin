@@ -1,7 +1,6 @@
 package gdscsookmyung.gardener.service
 
 import gdscsookmyung.gardener.entity.attendee.Attendee
-import gdscsookmyung.gardener.entity.event.Event
 import gdscsookmyung.gardener.repository.AttendeeRepository
 import gdscsookmyung.gardener.repository.EventRepository
 import gdscsookmyung.gardener.repository.UserRepository
@@ -18,18 +17,10 @@ class AttendeeService(
     val eventRepository: EventRepository,
     val attendanceService: AttendanceService
 ) {
-    fun create(github: String, event: Event): Attendee {
+    fun create(eventId: Long, github: String): Attendee {
+        val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
         val attendee = Attendee(github = github, event = event)
-        attendeeRepository.save(attendee)
-
-        var i = attendee.event!!.startedAt
-        while (i!!.isBefore(attendee.event!!.endedAt)) {
-            attendanceService.create(attendee, i)
-            i = i.plusDays(1)
-        }
-        attendanceService.create(attendee, i)
-
-        return attendee
+        return attendeeRepository.save(attendee)
     }
 
     fun readByEventId(eventId: Long): List<Attendee> {
@@ -37,14 +28,9 @@ class AttendeeService(
         return attendeeRepository.findAllByEvent(event)
     }
 
-    fun delete(id: Long) {
-        val attendee = attendeeRepository.findById(id).orElseThrow{throw CustomException(ErrorCode.NOT_FOUND)}
-        attendeeRepository.delete(attendee)
-    }
-
-    fun delete(eventId: Long, username: String) {
+    fun delete(eventId: Long, githubId: String) {
         val event = eventRepository.findById(eventId).orElseThrow{ throw CustomException(ErrorCode.NOT_FOUND) }
-        val user = userRepository.findByUsername(username).orElseThrow{ throw CustomException(ErrorCode.USER_NOT_FOUND) }
+        val user = userRepository.findByUsername(githubId).orElseThrow{ throw CustomException(ErrorCode.USER_NOT_FOUND) }
         val attendee = attendeeRepository.findByEventAndGithub(event, user.github).orElseThrow{ throw CustomException(ErrorCode.NOT_FOUND) }
 
         return attendeeRepository.delete(attendee)

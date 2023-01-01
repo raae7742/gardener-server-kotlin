@@ -18,25 +18,46 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 
 @Tag(name = "attendee", description = "이벤트 참여자 API")
 @RestController
-@RequestMapping("/attendee")
+@RequestMapping("/event/{eventId}/attendee")
 class AttendeeController(
     private val attendeeService: AttendeeService,
-    private val jwtTokenProvider: JwtTokenProvider
 ) {
 
-    @Operation(summary = "프로젝트 나가기")
+    @Operation(summary = "이벤트 참가하기")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "참가하기 성공", content = [
+            Content(mediaType = "application/json", array = ArraySchema(schema = Schema(implementation = String::class)))]),
+        ApiResponse(responseCode = "404", description = "해당 ID의 객체 또는 연결된 객체를 찾을 수 없습니다.", content = [
+            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
+    @PostMapping
+    fun enterEvent(@Parameter(description = "이벤트 ID") @PathVariable eventId: Long,
+                   @Parameter(description = "깃허브 ID") @RequestBody githubId: String,
+                  request: HttpServletRequest
+    ): ResponseEntity<ResponseMessage> {
+        attendeeService.create(eventId, githubId)
+
+        return ResponseEntity(
+            ResponseMessage(message = "성공", data = ""),
+            HttpStatus.OK
+        )
+    }
+
+    @Operation(summary = "이벤트 나가기")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "나가기 성공", content = [
             Content(mediaType = "application/json", array = ArraySchema(schema = Schema(implementation = String::class)))]),
         ApiResponse(responseCode = "404", description = "해당 ID의 객체 또는 연결된 객체를 찾을 수 없습니다.", content = [
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
     @DeleteMapping
-    fun exitEvent(@Parameter(description = "JWT 토큰") @RequestHeader("Authorization") token: String, @Parameter(description = "이벤트 ID") @RequestParam eventId: Long): ResponseEntity<ResponseMessage> {
-        val username = jwtTokenProvider.getUsername(token)
-        attendeeService.delete(eventId, username)
+    fun exitEvent(@Parameter(description = "이벤트 ID") @PathVariable eventId: Long,
+                  @Parameter(description = "깃허브 ID") @RequestParam githubId: String,
+                  request: HttpServletRequest
+    ): ResponseEntity<ResponseMessage> {
+        attendeeService.delete(eventId, githubId)
 
         return ResponseEntity(
             ResponseMessage(message = "성공", data = ""),

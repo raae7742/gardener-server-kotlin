@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest
 @RequestMapping("/event")
 class EventController (
     val eventService: EventService,
-    val attendeeService: AttendeeService
 ){
     @Operation(summary = "이벤트 생성")
     @ApiResponses(value = [
@@ -32,10 +31,8 @@ class EventController (
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = EventResponseDto::class))))])])
     @PostMapping
     fun createEvent(@Parameter(description = "생성할 이벤트 내용") @RequestBody requestDto: EventRequestDto): ResponseEntity<ResponseMessage> {
-        val event = eventService.create(requestDto)
-
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = event),
+            ResponseMessage(message = "성공", data = eventService.create(requestDto)),
             HttpStatus.OK
         )
     }
@@ -47,9 +44,8 @@ class EventController (
         ApiResponse(responseCode = "404", description = "해당 ID의 이벤트를 찾을 수 없습니다.", content = [
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])    @GetMapping("/{eventId}")
     fun readEvent(@PathVariable("eventId") eventId: Long): ResponseEntity<ResponseMessage> {
-        val event = eventService.readById(eventId)
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = event),
+            ResponseMessage(message = "성공", data = eventService.readById(eventId)),
             HttpStatus.OK
         )
     }
@@ -60,10 +56,8 @@ class EventController (
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = EventResponseDto::class))))])])
     @GetMapping("/current")
     fun readCurrentEvents(): ResponseEntity<ResponseMessage> {
-        val currentEvents = eventService.readCurrentEvents()
-
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = currentEvents),
+            ResponseMessage(message = "성공", data = eventService.readCurrentEvents()),
             HttpStatus.OK
         )
     }
@@ -74,10 +68,8 @@ class EventController (
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = EventResponseDto::class))))])])
     @GetMapping("/past")
     fun readPastEvents(): ResponseEntity<ResponseMessage> {
-        val pastEvents = eventService.readPastEvents()
-
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = pastEvents),
+            ResponseMessage(message = "성공", data = eventService.readPastEvents()),
             HttpStatus.OK
         )
     }
@@ -88,10 +80,8 @@ class EventController (
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = EventResponseDto::class))))])])
     @GetMapping("/future")
     fun readFutureEvents(): ResponseEntity<ResponseMessage> {
-        val futureEvents = eventService.readFutureEvents()
-
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = futureEvents),
+            ResponseMessage(message = "성공", data = eventService.readFutureEvents()),
             HttpStatus.OK
         )
     }
@@ -102,12 +92,12 @@ class EventController (
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = EventResponseDto::class))))]),
         ApiResponse(responseCode = "404", description = "해당 ID의 이벤트를 찾을 수 없습니다.", content = [
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
-    @PutMapping
-    fun update(@Parameter(description = "이벤트 ID") @RequestParam eventId: Long, @Parameter(description = "수정할 이벤트 내용") @RequestBody requestDto: EventRequestDto): ResponseEntity<ResponseMessage> {
-        val event = eventService.update(eventId, requestDto)
-
+    @PatchMapping
+    fun update(@Parameter(description = "이벤트 ID") @RequestParam eventId: Long,
+               @Parameter(description = "수정할 이벤트 내용") @RequestBody requestDto: EventRequestDto
+    ): ResponseEntity<ResponseMessage> {
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = event),
+            ResponseMessage(message = "성공", data = eventService.update(eventId, requestDto)),
             HttpStatus.OK
         )
     }
@@ -124,26 +114,6 @@ class EventController (
 
         return ResponseEntity(
             ResponseMessage(message = "성공", data = eventId),
-            HttpStatus.OK
-        )
-    }
-
-    @Operation(summary = "프로젝트 나가기")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "나가기 성공", content = [
-            Content(mediaType = "application/json", array = ArraySchema(schema = Schema(implementation = String::class)))]),
-        ApiResponse(responseCode = "404", description = "해당 ID의 객체 또는 연결된 객체를 찾을 수 없습니다.", content = [
-            Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
-    @PostMapping("/exit")
-    fun exitEvent(
-        @Parameter(description = "이벤트 ID") @RequestParam eventId: Long,
-        request: HttpServletRequest
-    ): ResponseEntity<ResponseMessage> {
-        val username = request.userPrincipal.name
-        attendeeService.delete(eventId, username)
-
-        return ResponseEntity(
-            ResponseMessage(message = "성공", data = ""),
             HttpStatus.OK
         )
     }

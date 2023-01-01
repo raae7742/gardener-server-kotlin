@@ -98,6 +98,7 @@ class AttendanceService(
 
                     if (date.isBefore(endedAt) || date.isEqual(endedAt)) {
                         val attendance = attendanceRepository.findByAttendeeAndDate(attendee, date)
+                            ?: Attendance(attendee = attendee, date = date)
                         attendance.commit = true
                         attendanceRepository.save(attendance)
                     }

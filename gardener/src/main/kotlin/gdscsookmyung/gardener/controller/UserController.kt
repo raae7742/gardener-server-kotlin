@@ -91,10 +91,8 @@ class UserController(
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
     @PutMapping()
     fun editUsername(@Parameter(description = "유저 ID") @RequestParam userId: Long, @Parameter(description = "새로 바꿀 유저네임") @RequestParam username: String): ResponseEntity<ResponseMessage> {
-        val user = userService.updateUsername(userId, username)
-
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = user),
+            ResponseMessage(message = "성공", data = userService.updateUsername(userId, username)),
             HttpStatus.OK
         )
     }
