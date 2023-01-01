@@ -15,7 +15,6 @@ class AttendeeService(
     val attendeeRepository: AttendeeRepository,
     val userRepository: UserRepository,
     val eventRepository: EventRepository,
-    val attendanceService: AttendanceService
 ) {
     fun create(eventId: Long, github: String): Attendee {
         val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }

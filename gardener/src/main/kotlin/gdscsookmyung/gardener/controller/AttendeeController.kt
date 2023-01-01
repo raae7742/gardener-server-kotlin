@@ -1,14 +1,11 @@
 package gdscsookmyung.gardener.controller
 
-import gdscsookmyung.gardener.auth.JwtTokenProvider
-import gdscsookmyung.gardener.entity.event.dto.EventResponseDto
+import gdscsookmyung.gardener.entity.attendee.dto.AttendeeRequestDto
 import gdscsookmyung.gardener.service.AttendeeService
 import gdscsookmyung.gardener.util.exception.ErrorResponse
 import gdscsookmyung.gardener.util.response.ResponseMessage
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.enums.ParameterIn
-import io.swagger.v3.oas.annotations.headers.Header
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -35,10 +32,10 @@ class AttendeeController(
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
     @PostMapping
     fun enterEvent(@Parameter(description = "이벤트 ID") @PathVariable eventId: Long,
-                   @Parameter(description = "깃허브 ID") @RequestBody githubId: String,
-                  request: HttpServletRequest
+                   @Parameter(description = "깃허브 ID") @RequestBody requestDto: AttendeeRequestDto,
+                   request: HttpServletRequest
     ): ResponseEntity<ResponseMessage> {
-        attendeeService.create(eventId, githubId)
+        attendeeService.create(eventId, requestDto.github)
 
         return ResponseEntity(
             ResponseMessage(message = "성공", data = ""),
@@ -54,10 +51,10 @@ class AttendeeController(
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
     @DeleteMapping
     fun exitEvent(@Parameter(description = "이벤트 ID") @PathVariable eventId: Long,
-                  @Parameter(description = "깃허브 ID") @RequestParam githubId: String,
+                  @Parameter(description = "깃허브 ID") @RequestParam github: String,
                   request: HttpServletRequest
     ): ResponseEntity<ResponseMessage> {
-        attendeeService.delete(eventId, githubId)
+        attendeeService.delete(eventId, github)
 
         return ResponseEntity(
             ResponseMessage(message = "성공", data = ""),
