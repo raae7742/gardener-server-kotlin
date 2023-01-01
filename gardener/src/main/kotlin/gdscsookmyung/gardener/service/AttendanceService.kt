@@ -7,6 +7,8 @@ import gdscsookmyung.gardener.entity.attendance.dto.AttendanceResponseDto
 import gdscsookmyung.gardener.entity.attendee.Attendee
 import gdscsookmyung.gardener.entity.event.Event
 import gdscsookmyung.gardener.repository.AttendanceRepository
+import gdscsookmyung.gardener.repository.AttendeeRepository
+import gdscsookmyung.gardener.repository.EventRepository
 import gdscsookmyung.gardener.service.util.GithubUtil
 import gdscsookmyung.gardener.service.util.SlackUtil
 import gdscsookmyung.gardener.util.exception.CustomException
@@ -22,71 +24,78 @@ import javax.transaction.Transactional
 @RequiredArgsConstructor
 class AttendanceService(
     private val attendanceRepository: AttendanceRepository,
+    private val eventRepository: EventRepository,
+    private val attendeeRepository: AttendeeRepository,
     private val githubUtil: GithubUtil,
     private val slackUtil: SlackUtil,
 ) {
 
     @Transactional
     fun create(attendee: Attendee, date: LocalDate?): Attendance {
-        return if (date == null) attendanceRepository.save(Attendance(attendee = attendee, date = LocalDate.now()))
-        else attendanceRepository.save(Attendance(attendee = attendee, date = date))
+        return if (date == null)
+            attendanceRepository.save(Attendance(attendee = attendee, date = LocalDate.now()))
+        else
+            attendanceRepository.save(Attendance(attendee = attendee, date = date))
     }
 
-    fun readAllByAttendee(event: Event, attendees: List<Attendee>): MutableList<AttendanceAttendeeDto> {
+    fun readAllByEventId(eventId: Long): MutableList<AttendanceAttendeeDto> {
+        val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
+        val attendees = attendeeRepository.findAllByEvent(event)
+
         updateAllCommit(event, attendees)
 
         val response: MutableList<AttendanceAttendeeDto> = mutableListOf()
-        for (attendee in attendees) {
-            val attendeeDto = AttendanceAttendeeDto(github = attendee.github!!)
-            val attendances = attendanceRepository.findByAttendee(attendee)
 
-            for (a in attendances) {
-                attendeeDto.attendances.add(
-                    AttendanceResponseDto(
-                        date = a.date,
-                        isChecked = a.commit
-                    ))
+        attendees.stream().forEach { attendee ->
+            val dto = AttendanceAttendeeDto(attendee.github!!)
+
+            attendanceRepository.findByAttendee(attendee).stream().forEach { attendance ->
+                dto.attendances.add(AttendanceResponseDto(attendance.date, attendance.commit))
             }
-            response.add(attendeeDto)
+            response.add(dto)
         }
         return response
     }
 
-    fun readAllByEventAndDate(event: Event, attendees: List<Attendee>, date: LocalDate): MutableList<AttendanceDateDto> {
+    fun readAllByEventIdAndDate(eventId: Long, date: LocalDate): MutableList<AttendanceDateDto> {
+        val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND)}
+        val attendees = attendeeRepository.findAllByEvent(event)
+
         updateAllCommit(event, attendees)
 
         val response = mutableListOf<AttendanceDateDto>()
-        val attendances = attendanceRepository.findByEventAndDate(event.id!!, date)
-
-        for (a in attendances) {
-            response.add(AttendanceDateDto(
-                github = a.attendee?.github!!,
-                isChecked = a.commit
-            ))
+        attendanceRepository.findByEventAndDate(event.id!!, date).stream().forEach {
+            response.add(AttendanceDateDto(github = it.attendee?.github!!, isChecked = it.commit))
         }
+
         return response
     }
 
     @Transactional
-    fun updateAllCommit(event: Event, attendees: List<Attendee>) {
+    private fun updateAllCommit(event: Event, attendees: List<Attendee>) {
         val startedAt = event.startedAt
         val endedAt = event.endedAt
 
         for (attendee in attendees) {
             val iterator = githubUtil.getCommits(attendee.github!!)
             try {
+                // 최근 순으로 출력
                 while (iterator.hasNext()) {
                     val commit = iterator.next()
                     val date = commit.commitDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
 
-                    if (date.isBefore(startedAt)) return
+                    if (date.isBefore(startedAt)) {
+                        return
+                    }
 
                     if (date.isBefore(endedAt) || date.isEqual(endedAt)) {
                         val attendance = attendanceRepository.findByAttendeeAndDate(attendee, date)
                         attendance.commit = true
                         attendanceRepository.save(attendance)
+                    }
 
-                        if (date.isEqual(endedAt)) return
+                    if (date.isEqual(endedAt) || date.isAfter(endedAt)) {
+                        return
                     }
                 }
             } catch (e: IOException) {
@@ -97,7 +106,7 @@ class AttendanceService(
     }
 
     @Transactional
-    fun updateAllTil(attendee: Attendee) {
+    private fun updateAllTil(attendee: Attendee) {
 
         slackUtil.fetchHistory()
 

@@ -11,6 +11,7 @@ import gdscsookmyung.gardener.util.exception.CustomException
 import gdscsookmyung.gardener.util.exception.ErrorCode
 import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 @RequiredArgsConstructor
@@ -26,23 +27,26 @@ class EventService (
         event = eventRepository.save(event)
 
         for (a in requestDto.attendees) {
-            val attendee = attendeeService.create(a, event)
-            event.attendees.add(attendee)
+            event.attendees.add(attendeeService.create(a, event))
         }
         event = eventRepository.save(event)
 
         return EventResponseDto(event)
     }
 
-    fun readById(id: Long): Event {
-        return eventRepository.findById(id).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
+    @Transactional
+    fun readById(id: Long): EventResponseDto {
+        val event = eventRepository.findById(id).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
+        return EventResponseDto(event)
     }
 
+    @Transactional
     fun readCurrentEvents(): List<EventResponseDto> {
         val currentEvents = eventRepository.findCurrentEvents()
         return convertToResponseDtoList(currentEvents)
     }
 
+    @Transactional
     fun readPastEvents(): List<EventResponseDto> {
         val pastEvents = eventRepository.findPastEvents()
         return convertToResponseDtoList(pastEvents)
@@ -55,7 +59,7 @@ class EventService (
 
     fun readUserEvents(username: String): List<EventResponseDto> {
         val user: User = userRepository.findByUsername(username).orElseThrow { throw CustomException(ErrorCode.USER_NOT_FOUND) }
-        val attendees = attendeeRepository.findByGithub(user.github)
+        val attendees = attendeeRepository.findAllByGithub(user.github)
 
         val events = mutableListOf<Event>()
         attendees.forEach { events.add(it.event!!) }
@@ -70,7 +74,7 @@ class EventService (
     }
 
     fun update(id: Long, requestDto: EventRequestDto): EventResponseDto {
-        val event = readById(id)
+        val event = eventRepository.findById(id).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
         event.update(requestDto)
         eventRepository.save(event)
 
@@ -78,7 +82,7 @@ class EventService (
     }
 
     fun delete(id: Long) {
-        val event = readById(id)
+        val event = eventRepository.findById(id).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
         eventRepository.delete(event)
     }
 }

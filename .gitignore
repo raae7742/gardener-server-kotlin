@@ -1,0 +1,6 @@
+
+*.gz
+
+gardener/logs/
+
+*.log

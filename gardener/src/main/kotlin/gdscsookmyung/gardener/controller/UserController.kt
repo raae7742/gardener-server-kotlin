@@ -130,7 +130,6 @@ class UserController(
             HttpStatus.OK
         )
     }
-
     @PutMapping("/password")
     fun editPassword() {
         //TODO

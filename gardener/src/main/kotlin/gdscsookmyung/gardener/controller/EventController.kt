@@ -46,7 +46,7 @@ class EventController (
     fun readEvent(@PathVariable("eventId") eventId: Long): ResponseEntity<ResponseMessage> {
         val event = eventService.readById(eventId)
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = EventResponseDto(event)),
+            ResponseMessage(message = "성공", data = event),
             HttpStatus.OK
         )
     }

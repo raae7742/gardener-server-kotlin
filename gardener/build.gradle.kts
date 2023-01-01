@@ -7,16 +7,12 @@ plugins {
 	kotlin("jvm") version "1.6.10"
 	kotlin("plugin.spring") version "1.6.10"
 	kotlin("plugin.jpa") version "1.6.10"
-	kotlin("kapt") version "1.6.10"
+	kotlin("kapt") version "1.7.10"
 }
 
 group = "gdscsookmyung"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
-
-sourceSets["main"].withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-	kotlin.srcDir("$buildDir/generated/source/kapt/main")
-}
 
 configurations {
 	compileOnly {

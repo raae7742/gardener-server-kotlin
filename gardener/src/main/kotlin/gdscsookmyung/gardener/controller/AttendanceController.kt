@@ -4,9 +4,6 @@ import gdscsookmyung.gardener.entity.attendance.dto.AttendanceAttendeeDto
 import gdscsookmyung.gardener.entity.attendance.dto.AttendanceDateDto
 import gdscsookmyung.gardener.service.AttendanceService
 import gdscsookmyung.gardener.service.AttendeeService
-import gdscsookmyung.gardener.service.EventService
-import gdscsookmyung.gardener.util.exception.CustomException
-import gdscsookmyung.gardener.util.exception.ErrorCode
 import gdscsookmyung.gardener.util.exception.ErrorResponse
 import gdscsookmyung.gardener.util.response.ResponseMessage
 import io.swagger.v3.oas.annotations.Operation
@@ -27,7 +24,6 @@ import java.time.LocalDate
 @RequestMapping("/attendance")
 class AttendanceController(
     val attendanceService: AttendanceService,
-    val eventService: EventService,
     val attendeeService: AttendeeService
 ) {
 
@@ -39,12 +35,8 @@ class AttendanceController(
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
     @GetMapping
     fun readAllCheck(@Parameter(description = "이벤트 ID") @RequestParam eventId: Long): ResponseEntity<Any> {
-        val event = eventService.readById(eventId)
-        val attendees = attendeeService.readByEvent(event)
-        val response = attendanceService.readAllByAttendee(event, attendees)
-
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = response),
+            ResponseMessage(message = "성공", data = attendanceService.readAllByEventId(eventId)),
             HttpStatus.OK
         )
     }
@@ -59,15 +51,10 @@ class AttendanceController(
             Content(mediaType = "application/json", array = (ArraySchema(schema = Schema(implementation = ErrorResponse::class))))])])
     @GetMapping("/today")
     fun readTodayCheck(@Parameter(description = "이벤트 ID") @RequestParam eventId: Long): ResponseEntity<Any> {
-        val event = eventService.readById(eventId)
-        val attendees = attendeeService.readByEvent(event)
-        val now = LocalDate.now()
-
-        if (now.isBefore(event.startedAt)) throw CustomException(ErrorCode.EVENT_NOT_STARTED)
-        else if (now.isAfter(event.endedAt)) throw CustomException(ErrorCode.EVENT_EXPIRED)
+        // TODO: 이벤트 종료 or 시작 전 여부 체크
 
         return ResponseEntity(
-            ResponseMessage(message = "성공", data = attendanceService.readAllByEventAndDate(event, attendees, now)),
+            ResponseMessage(message = "성공", data = attendanceService.readAllByEventIdAndDate(eventId, LocalDate.now())),
             HttpStatus.OK
         )
     }

@@ -91,7 +91,6 @@ class UserService(
 
         user.updateRefreshToken(null)
     }
-
     private fun validateDuplicatedGithub(github: String): Boolean {
         return userRepository.existsByGithub(github)
     }

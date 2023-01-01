@@ -19,10 +19,7 @@ class AttendeeService(
     val attendanceService: AttendanceService
 ) {
     fun create(github: String, event: Event): Attendee {
-        val attendee = Attendee(
-            github = github,
-            event = event
-        )
+        val attendee = Attendee(github = github, event = event)
         attendeeRepository.save(attendee)
 
         var i = attendee.event!!.startedAt
@@ -35,8 +32,9 @@ class AttendeeService(
         return attendee
     }
 
-    fun readByEvent(event: Event): List<Attendee> {
-        return attendeeRepository.findByEvent(event)
+    fun readByEventId(eventId: Long): List<Attendee> {
+        val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
+        return attendeeRepository.findAllByEvent(event)
     }
 
     fun delete(id: Long) {

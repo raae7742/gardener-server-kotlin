@@ -9,9 +9,9 @@ import java.util.*
 @Repository
 interface AttendeeRepository: JpaRepository<Attendee, Long> {
 
-    fun findByEvent(event: Event): List<Attendee>
+    fun findAllByEvent(event: Event): List<Attendee>
 
-    fun findByGithub(github: String): List<Attendee>
+    fun findAllByGithub(github: String): List<Attendee>
 
     fun findByEventAndGithub(event: Event, github: String): Optional<Attendee>
 }
