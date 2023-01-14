@@ -41,15 +41,29 @@ class AttendanceService(
     fun readAllByEventId(eventId: Long): MutableList<AttendanceAttendeeDto> {
         val event = eventRepository.findById(eventId).orElseThrow { CustomException(ErrorCode.NOT_FOUND) }
         val attendees = attendeeRepository.findAllByEvent(event)
+        val response: MutableList<AttendanceAttendeeDto> = mutableListOf()
 
         updateAllCommit(event, attendees)
 
-        val response: MutableList<AttendanceAttendeeDto> = mutableListOf()
         attendees.stream().forEach { attendee ->
             val dto = AttendanceAttendeeDto(attendee.github!!)
 
-            attendanceRepository.findByAttendee(attendee).stream().forEach { attendance ->
-                dto.attendances.add(AttendanceResponseDto(attendance.date, attendance.commit))
+            val queue = ArrayDeque<Attendance>()
+            for (a in attendanceRepository.findAllByAttendee(attendee)) {
+                queue.add(a)
+            }
+
+            var date = event.startedAt!!
+            while (!date.isAfter(event.endedAt)) {
+                if (queue.isNotEmpty() && queue.first().date.isEqual(date)) {
+                    dto.attendances.add(AttendanceResponseDto(date, queue.first().commit))
+                    queue.removeFirst()
+                }
+                else {
+                    dto.attendances.add(AttendanceResponseDto(date, false))
+                }
+
+                date = date.plusDays(1)
             }
             response.add(dto)
         }

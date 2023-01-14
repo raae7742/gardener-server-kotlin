@@ -43,7 +43,7 @@ internal class EventServiceTest (
         val findEvent = eventService.readById(event.id)
         assertThat(findEvent.id).isEqualTo(event.id)
         assertThat(findEvent.startedAt).isEqualTo(event.startedAt)
-        assertThat(findEvent.attendees.size).isEqualTo(2)
+        assertThat(findEvent.attendeesCount).isEqualTo(2)
     }
 
     @Test

@@ -13,12 +13,15 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import lombok.extern.slf4j.Slf4j
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @Tag(name = "attendance", description = "출석 API")
+@Slf4j
 @RestController
 @RequestMapping("/event/{eventId}/attendance")
 class AttendanceController(
